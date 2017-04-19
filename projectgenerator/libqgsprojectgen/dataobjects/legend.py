@@ -21,8 +21,9 @@
 from qgis.core import QgsProject
 
 class LegendGroup(object):
-    def __init__(self, name=None):
+    def __init__(self, name=None, expanded=True):
         self.name = name
+        self.expanded = expanded
         self.items = list()
 
     def dump(self):
@@ -55,6 +56,7 @@ class LegendGroup(object):
         for item in self.items:
             if isinstance(item, LegendGroup):
                 subgroup = group.addGroup(item.name)
+                subgroup.setExpanded(item.expanded)
                 item.create(qgis_project, subgroup)
             else:
                 node = qgis_project.layerTreeRoot().findLayer(item.real_id)

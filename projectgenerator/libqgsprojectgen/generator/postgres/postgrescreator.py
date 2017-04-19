@@ -168,7 +168,7 @@ WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::reg
     def legend(self, layers):
         legend = LegendGroup('root')
         tables = LegendGroup('tables')
-        domains = LegendGroup('domains')
+        domains = LegendGroup('domains', False)
 
         point_layers = []
         line_layers = []
