@@ -167,8 +167,8 @@ WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::reg
 
     def legend(self, layers):
         legend = LegendGroup('root')
-
         tables = LegendGroup('tables')
+        domains = LegendGroup('domains')
 
         point_layers = []
         line_layers = []
@@ -185,7 +185,10 @@ WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::reg
                     polygon_layers.append(layer)
 
             else:
-                tables.append(layer)
+                if layer.is_domain:
+                    domains.append(layer)
+                else:
+                    tables.append(layer)
 
         for l in point_layers:
             legend.append(l)
@@ -195,5 +198,6 @@ WHERE st.relid = 'abfallsammelstellen.abfallsammlstllen_abfallsammelstelle'::reg
             legend.append(l)
 
         legend.append(tables)
+        legend.append(domains)
 
         return legend
