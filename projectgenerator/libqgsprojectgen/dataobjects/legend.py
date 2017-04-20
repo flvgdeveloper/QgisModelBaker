@@ -59,6 +59,5 @@ class LegendGroup(object):
                 subgroup.setExpanded(item.expanded)
                 item.create(qgis_project, subgroup)
             else:
-                node = qgis_project.layerTreeRoot().findLayer(item.real_id)
-                group.addChildNode(node.clone())
-                node.parent().removeChildNode(node)
+                layer = qgis_project.mapLayer(item.real_id)
+                group.addLayer(layer)

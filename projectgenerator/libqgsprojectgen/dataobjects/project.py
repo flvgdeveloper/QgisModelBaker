@@ -78,7 +78,7 @@ class Project(QObject):
 
             qgis_layers.append(qgis_layer)
 
-        qgis_project.addMapLayers(qgis_layers)
+        qgis_project.addMapLayers(qgis_layers, False)
 
         if isinstance(self.crs, QgsCoordinateReferenceSystem):
             qgis_project.setCrs(self.crs)
@@ -90,9 +90,9 @@ class Project(QObject):
         for relation in self.relations:
             rel = relation.create()
             assert rel.isValid()
-            qgis_relations.append(rel)
 
             if dict_domains[rel.referencedLayerId()]:
+                qgis_relations.append(rel)
                 editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
                         'Relation': rel.id(),
                         'ShowForm': False,
@@ -106,8 +106,7 @@ class Project(QObject):
 
         qgis_project.setCrs(self.crs)
 
-        if self.legend:
-            self.legend.create(qgis_project)
+        self.legend.create(qgis_project)
 
         if path:
             qgis_project.write(path)
