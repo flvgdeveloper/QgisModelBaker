@@ -80,16 +80,19 @@ class Project(QObject):
 
         qgis_project.addMapLayers(qgis_layers, False)
 
-        if isinstance(self.crs, QgsCoordinateReferenceSystem):
-            qgis_project.setCrs(self.crs)
-        else:
-            qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
+        if self.crs:
+            if isinstance(self.crs, QgsCoordinateReferenceSystem):
+                qgis_project.setCrs(self.crs)
+            else:
+                qgis_project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(self.crs))
 
         qgis_relations = list(qgis_project.relationManager().relations().values())
         dict_domains = {layer.real_id: layer.is_domain for layer in self.layers}
         for relation in self.relations:
             rel = relation.create()
-            assert rel.isValid()
+            #assert rel.isValid()
+            if not rel.isValid():
+                continue
 
             if dict_domains[rel.referencedLayerId()]:
                 qgis_relations.append(rel)
@@ -103,8 +106,6 @@ class Project(QObject):
                 referencing_layer.setEditorWidgetSetup(rel.referencingFields()[0], editor_widget_setup)
 
         qgis_project.relationManager().setRelations(qgis_relations)
-
-        qgis_project.setCrs(self.crs)
 
         self.legend.create(qgis_project)
 

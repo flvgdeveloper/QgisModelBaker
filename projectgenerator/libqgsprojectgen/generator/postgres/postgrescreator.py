@@ -18,6 +18,7 @@
  ***************************************************************************/
 """
 
+import os
 import psycopg2
 import psycopg2.extras
 import re
@@ -200,3 +201,23 @@ WHERE st.relid = '{schema}.{table}'::regclass;
         legend.append(domains)
 
         return legend
+
+
+    def executeCustomScript(self):
+        directory_name = os.path.dirname(os.path.realpath(__file__))
+        file_name = os.path.join(directory_name,'scripts','script_triggers_bd.sql')
+
+        if not os.path.isfile(file_name):
+            print("################### NO EXISTE ARCHIVO SCRIPT SQL ########################", file_name)
+            return
+
+        cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        with open(file_name) as f:
+            sql = f.read()
+            print(sql.format(self.schema))
+            try:
+                cur.execute(sql.format(self.schema).replace('\n',' ').replace('\r',' ').replace('\t',' '))
+            except Exception as e: # Silent errors
+                return
+
+

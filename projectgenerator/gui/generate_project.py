@@ -63,6 +63,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def accepted(self):
         configuration = self.updated_configuration()
+        generator = Generator(configuration.uri, configuration.schema)
 
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
@@ -85,7 +86,11 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 self.txtStdout.setText(self.tr('Java could not be found. Please <a href="https://java.com/en/download/">install Java</a> and or <a href="#configure">configure a custom java path</a>. We also support the JAVA_HOME environment variable in case you prefer this.'))
                 return
 
-        generator = Generator(configuration.uri, configuration.schema)
+            # Execute custom SQL script
+            generator.executeCustomScript()
+
+
+
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
         legend = generator.legend(available_layers)
