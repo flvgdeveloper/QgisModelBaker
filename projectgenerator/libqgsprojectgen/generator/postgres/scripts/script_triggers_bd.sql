@@ -1,5 +1,5 @@
 BEGIN;
-SET search_path = {}, pg_catalog;
+SET search_path = {0}, pg_catalog;
 CREATE OR REPLACE FUNCTION insert_update_delete_oid()
   RETURNS trigger AS
 $BODY$
@@ -13,11 +13,11 @@ BEGIN
       END;
 
   IF (TG_OP = 'DELETE') THEN
-    EXECUTE 'DELETE FROM oid WHERE ' || column_name || ' = ' || OLD.t_id;
+    EXECUTE 'DELETE FROM {0}.oid WHERE ' || column_name || ' = ' || OLD.t_id;
   ELSIF (TG_OP = 'UPDATE' AND NEW.t_id <> OLD.t_id) THEN
-    EXECUTE 'UPDATE oid set ' || column_name || ' = ' || NEW.t_id || ' WHERE ' || column_name || ' = ' || OLD.t_id;
+    EXECUTE 'UPDATE {0}.oid set ' || column_name || ' = ' || NEW.t_id || ' WHERE ' || column_name || ' = ' || OLD.t_id;
   ELSIF (TG_OP = 'INSERT') THEN
-    EXECUTE 'INSERT INTO oid (namespace,localid,' || column_name || ') VALUES (' || quote_literal('catastro') || ',' || quote_literal(TG_TABLE_NAME || '_' || NEW.t_id ) || ',' || NEW.t_id || ' );';
+    EXECUTE 'INSERT INTO {0}.oid (namespace,localid,' || column_name || ') VALUES (' || quote_literal('catastro') || ',' || quote_literal(TG_TABLE_NAME || '_' || NEW.t_id ) || ',' || NEW.t_id || ' );';
   END IF;
   return null;
 END;
