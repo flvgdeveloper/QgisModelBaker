@@ -120,9 +120,9 @@ class Exporter(QObject):
         while not finished:
             try:
                 output = proc.communicate(timeout=2)
-                self.stdout.emit(output[1].decode())
-                self.stderr.emit(output[0].decode())
-                if done_pattern.search(output[1].decode()):
+                self.stdout.emit(output[1].decode('latin'))
+                self.stderr.emit(output[0].decode('latin'))
+                if done_pattern.search(output[1].decode('latin')):
                     result = Exporter.SUCCESS
                 finished = True
             except subprocess.TimeoutExpired:
