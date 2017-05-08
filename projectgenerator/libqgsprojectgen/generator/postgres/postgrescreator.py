@@ -48,7 +48,8 @@ class PostgresCreator:
                       a.attname AS primary_key,
                       g.f_geometry_column AS geometry_column,
                       g.srid AS srid,
-                      g.type AS type
+                      g.type AS type,
+                      (cols.column_name = 'ilicode') AS isdomain
                     FROM pg_catalog.pg_tables tbls
                     LEFT JOIN pg_index i
                       ON i.indrelid = CONCAT(tbls.schemaname, '.', tbls.tablename)::regclass
@@ -58,6 +59,10 @@ class PostgresCreator:
                     LEFT JOIN public.geometry_columns g
                       ON g.f_table_schema = tbls.schemaname
                       AND g.f_table_name = tbls.tablename
+                    LEFT JOIN information_schema.columns cols
+                      ON cols.table_schema = tbls.schemaname
+                      AND cols.table_name = tbls.tablename
+                      AND column_name = 'ilicode'
                     WHERE i.indisprimary
         """)
 
@@ -94,7 +99,7 @@ class PostgresCreator:
                     table=record['tablename']
                 )
 
-            layer = Layer('postgres', data_source_uri)
+            layer = Layer('postgres', data_source_uri, record['isdomain'])
 
             # Get all fields for this table
             fields_cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
