@@ -63,6 +63,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def accepted(self):
         configuration = self.updated_configuration()
+        generator = Generator(configuration.uri, configuration.schema)
 
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
@@ -86,8 +87,8 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
                 return
 
             configuration.schema = configuration.schema or configuration.database
+            generator.executeCustomScript()
 
-        generator = Generator(configuration.uri, configuration.schema)
         available_layers = generator.layers()
         relations = generator.relations(available_layers)
         legend = generator.legend(available_layers)
