@@ -167,7 +167,7 @@ WHERE st.relid = '{schema}.{table}'::regclass;
     def legend(self, layers):
         legend = LegendGroup('root')
         tables = LegendGroup('tables')
-        domains = LegendGroup('domains')
+        domains = LegendGroup('domains', False)
 
         point_layers = []
         line_layers = []
