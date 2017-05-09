@@ -3,7 +3,6 @@ import os
 import re
 import tempfile
 import zipfile
-
 import functools
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
@@ -21,30 +20,15 @@ class Configuration(object):
         self.database = ''
         self.schema = ''
         self.password = ''
-        self.ilifile = ''
+        self.xtffile = ''
+        self.ilifolder = ''
+        self.ilimodels = ''
         self.port = ''
-        self.inheritance = 'smart1'
-        self.epsg = 21781  # Default EPSG code in ili2pg
-
-    @property
-    def uri(self):
-        uri = []
-        uri += ['dbname={}'.format(self.database)]
-        uri += ['user={}'.format(self.user)]
-        if self.password:
-            uri += ['password={}'.format(self.password)]
-        uri += ['host={}'.format(self.host)]
-        if self.port:
-            uri += ['port={}'.format(self.port)]
-
-        return ' '.join(uri)
-
 
 class JavaNotFoundError(FileNotFoundError):
     pass
 
-
-class Importer(QObject):
+class Exporter(QObject):
     SUCCESS = 0
     # TODO: Insert more codes?
     ERROR = 1000
@@ -93,26 +77,17 @@ class Importer(QObject):
                             ili2pg_url=ILI2PG_URL)))
 
         args = ["-jar", ili2pg_file]
-        args += ["--schemaimport"]
+        args += ["--export"]
         args += ["--dbhost", self.configuration.host]
         args += ["--dbusr", self.configuration.user]
         if self.configuration.password:
             args += ["--dbpwd", self.configuration.password]
         args += ["--dbdatabase", self.configuration.database]
         args += ["--dbschema", self.configuration.schema or self.configuration.database]
-        args += ["--createEnumTabs"]
-        args += ["--createNumChecks"]
-        args += ["--coalesceMultiSurface"]
-        args += ["--createGeomIdx"]
-        args += ["--createFk"]
-        if self.configuration.inheritance == 'smart1':
-            args += ["--smart1Inheritance"]
-        else:
-            args += ["--smart2Inheritance"]
 
-        if self.configuration.epsg != 21781:
-            args += ["--defaultSrsCode", "{}".format(self.configuration.epsg)]
-        args += [self.configuration.ilifile]
+        args += ["--modeldir", self.configuration.ilifolder]
+        args += ["--models", self.configuration.ilimodels]
+        args += [self.configuration.xtffile]
 
         if self.configuration.java_path:
             # A java path is configured: respect it no mather what
@@ -144,7 +119,7 @@ class Importer(QObject):
 
         self.process_started.emit(java_path + ' ' + ' '.join(args))
 
-        self.__result = Importer.ERROR
+        self.__result = Exporter.ERROR
 
         loop = QEventLoop()
         proc.finished.connect(loop.exit)
@@ -154,14 +129,14 @@ class Importer(QObject):
         return self.__result
 
     def stderr_ready(self, proc):
-        text = bytes(proc.readAllStandardError()).decode()
+        text = bytes(proc.readAllStandardError()).decode('latin')
         if not self.__done_pattern:
-            self.__done_pattern = re.compile(r"Info: ...done")
+            self.__done_pattern = re.compile(r"Info: ...export done")
         if self.__done_pattern.search(text):
-            self.__result = Importer.SUCCESS
+            self.__result = Exporter.SUCCESS
 
         self.stderr.emit(text)
 
     def stdout_ready(self, proc):
-        text = bytes(proc.readAllStandardOutput()).decode()
+        text = bytes(proc.readAllStandardOutput()).decode('latin')
         self.stdout.emit(text)
