@@ -34,6 +34,8 @@ from ..libili2pg import iliimporter
 from ..libqgsprojectgen.generator.postgres import Generator
 from ..libqgsprojectgen.dataobjects import Project
 
+from psycopg2 import OperationalError, InternalError
+
 DIALOG_UI = get_ui_class('generate_project.ui')
 
 
@@ -63,7 +65,12 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
 
     def accepted(self):
         configuration = self.updated_configuration()
-        generator = Generator(configuration.uri, configuration.schema)
+        try:
+            generator = Generator(configuration.uri, configuration.schema)
+        except OperationalError:
+            self.txtStdout.setText(self.tr('There was an error connecting to the database. Check connection parameters.'))
+            return
+
 
         if self.type_combo_box.currentData() == 'ili':
             importer = iliimporter.Importer()
@@ -89,9 +96,14 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             configuration.schema = configuration.schema or configuration.database
             generator.executeCustomScript()
 
-        available_layers = generator.layers()
-        relations = generator.relations(available_layers)
-        legend = generator.legend(available_layers)
+        try:
+            available_layers = generator.layers()
+            relations = generator.relations(available_layers)
+            legend = generator.legend(available_layers)
+        except InternalError:
+            self.txtStdout.setText(self.tr('There was an error generating relations and triggers for this model.\nPossible reason: You might have selected inheritance type 1, but the model is intended to use type 2.'))
+            return
+
 
         project = Project()
         project.layers = available_layers
