@@ -20,7 +20,15 @@ IGNORED_TABLES = [
     'dq_element',
     'ci_contact',
     'ci_responsibleparty',
-    'la_partyroletype'
+    'la_partyroletype',
+    'documentoot',
+    'extarchive',
+    'col_rolinteresadoestruct',
+    'la_administrativesourcetype',
+    'la_responsibilitytype',
+    'la_availabilitystatustype',
+    'ci_presentationformcode',
+    'dq_evaluationmethodtypecode'
 ]
 
 IGNORED_FIELDNAMES = [

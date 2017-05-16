@@ -101,7 +101,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
             relations = generator.relations(available_layers)
             legend = generator.legend(available_layers)
         except InternalError:
-            self.txtStdout.setText(self.tr('There was an error generating relations and triggers for this model.\nPossible reason: You might have selected inheritance type 1, but the model is intended to use type 2.'))
+            self.txtStdout.setText(self.tr('There was an error generating relations and triggers for this model.\nPossible reasons:\n + You might have selected inheritance type 1, but the model is intended to use type 2. \n + A custom trigger does not match this model\'s tables/columns.\n\nCheck PostgreSQL logs for details.'))
             return
 
 
