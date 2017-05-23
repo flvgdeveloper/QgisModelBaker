@@ -4,6 +4,7 @@ import re
 import tempfile
 import zipfile
 import functools
+import locale
 
 from qgis.PyQt.QtCore import QObject, pyqtSignal, QProcess, QEventLoop
 
@@ -45,6 +46,7 @@ class Exporter(QObject):
         QObject.__init__(self, parent)
         self.filename = None
         self.configuration = Configuration()
+        self.encoding = locale.getlocale()[1]
 
     def run(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -129,7 +131,7 @@ class Exporter(QObject):
         return self.__result
 
     def stderr_ready(self, proc):
-        text = bytes(proc.readAllStandardError()).decode('latin')
+        text = bytes(proc.readAllStandardError()).decode(self.encoding)
         if not self.__done_pattern:
             self.__done_pattern = re.compile(r"Info: ...export done")
         if self.__done_pattern.search(text):
@@ -138,5 +140,5 @@ class Exporter(QObject):
         self.stderr.emit(text)
 
     def stdout_ready(self, proc):
-        text = bytes(proc.readAllStandardOutput()).decode('latin')
+        text = bytes(proc.readAllStandardOutput()).decode(self.encoding)
         self.stdout.emit(text)

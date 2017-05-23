@@ -17,6 +17,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import locale
 from projectgenerator.gui.generate_project import GenerateProjectDialog
 from projectgenerator.gui.export import ExportDialog
 from qgis.PyQt.QtWidgets import QAction, QMenu
@@ -30,6 +31,8 @@ class QgsProjectGeneratorPlugin(QObject):
         self.__generate_action = None
         self.__export_action = None
         self.__configure_action = None
+        if locale.getlocale() == (None, None):
+            locale.setlocale(locale.LC_ALL, '')
 
     def initGui(self):
         self.__generate_action = QAction(self.tr('Generate'), None)
