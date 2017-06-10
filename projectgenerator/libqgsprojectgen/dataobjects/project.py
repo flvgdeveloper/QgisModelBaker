@@ -93,7 +93,7 @@ class Project(QObject):
             assert rel.isValid()
             qgis_relations.append(rel)
 
-            if dict_domains[rel.referencedLayerId()]:
+            if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
                 referenced_layer = rel.referencedLayer()
                 editor_widget_setup = QgsEditorWidgetSetup('ValueRelation', {
                         'Value': referenced_layer.fields().field(rel.referencedFields()[0]).name(),
