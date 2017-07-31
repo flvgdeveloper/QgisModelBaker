@@ -173,7 +173,7 @@ class GenerateProjectDialog(QDialog, DIALOG_UI):
         QCoreApplication.processEvents()
 
     def on_stderr(self, text):
-        self.txtStdout.setTextColor(QColor('#aa2222'))
+        self.txtStdout.setTextColor(QColor('#004905'))
         self.txtStdout.append(text)
         QCoreApplication.processEvents()
 
