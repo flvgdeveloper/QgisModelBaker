@@ -26,10 +26,10 @@ IGNORED_TABLES = [
 IGNORED_FIELDNAMES = [
     't_id',
     't_seq',
-    'beginLifespanVersion',
-    'endLifespanVersion',
-    'ShareCheck',
-    'timeSpec'
+    'beginlifespanversion',
+    'endlifespanversion',
+    'sharecheck',
+    'timespec'
 ]
 
 READONLY_FIELDNAMES = [
