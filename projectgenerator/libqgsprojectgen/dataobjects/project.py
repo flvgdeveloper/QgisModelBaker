@@ -33,7 +33,7 @@ class Project(QObject):
         self.name = 'Not set'
         self.layers = list()
         self.legend = LegendGroup()
-        self.auto_transaction = True
+        self.auto_transaction = False
 
     def add_layer(self, layer):
         self.layers.append(layer)
