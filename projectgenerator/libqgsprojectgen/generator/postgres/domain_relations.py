@@ -195,7 +195,7 @@ class DomainRelation(Relation):
                                 continue
 
                         attribute = {res.group(1): d for d in domains_with_local for res in
-                                     [re.search('\s*([\w\d_-]+).*:.*\s{}.*'.format(d), line)] if res}
+                                     [re.search('\s*([\w\d_-]+).*:.*\s{};.*'.format(d), line)] if res}
 
                         if attribute:
                             if self.debug: print("MATCH:", attribute)
@@ -313,10 +313,18 @@ class DomainRelation(Relation):
             return models_info[iliclass] if iliclass in models_info else {}
         all_attrs = models_info[iliclass] if iliclass in models_info else {}
 
+        unqualified_attrs = {k.split(".")[-1]: k for k in all_attrs.keys()}
         for parents_domain_attr, domain in parents_domain_attrS.items():
-            # smart2Inheritance: Pass parent attributes to child, but omit already existing attrs (they are extended already)
-            if parents_domain_attr not in all_attrs:
+            # smart2Inheritance: Pass parent attributes to child if they are missing.
+            # If they exist, overwrite keys (i.e., parent_domain_attr: child_domain)
+            parents_unqualified_attr = parents_domain_attr.split(".")[-1]
+            if parents_unqualified_attr not in unqualified_attrs:
                 all_attrs[parents_domain_attr] = domain
+            else: # Extended, use parent's attribute name with child domain name
+                if unqualified_attrs[parents_unqualified_attr] in all_attrs:
+                    tmpDomain = all_attrs[unqualified_attrs[parents_unqualified_attr]]
+                    del all_attrs[unqualified_attrs[parents_unqualified_attr]]
+                    all_attrs[parents_domain_attr] = tmpDomain
         return all_attrs
 
 # TODO
