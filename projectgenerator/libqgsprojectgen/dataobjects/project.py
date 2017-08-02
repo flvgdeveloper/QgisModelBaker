@@ -96,7 +96,7 @@ class Project(QObject):
             if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
                 referenced_layer = rel.referencedLayer()
                 editor_widget_setup = QgsEditorWidgetSetup('ValueRelation', {
-                        'Value': referenced_layer.fields().field(rel.referencedFields()[0]).name(),
+                        'Value': 'dispname',
                         'Key': referenced_layer.fields().field(rel.referencedFields()[0]).name(),
                         'AllowMulti': False,
                         'Layer': rel.referencedLayerId(),
