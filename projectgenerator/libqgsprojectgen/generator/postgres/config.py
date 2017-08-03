@@ -20,7 +20,9 @@ IGNORED_TABLES = [
     'dq_element',
     'ci_contact',
     'ci_responsibleparty',
-    'la_partyroletype'
+    'la_partyroletype',
+    'ci_contacto',
+    'ci_parteresponsable',
 ]
 
 IGNORED_FIELDNAMES = [
