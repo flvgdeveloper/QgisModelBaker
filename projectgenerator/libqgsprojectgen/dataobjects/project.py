@@ -97,13 +97,24 @@ class Project(QObject):
             qgis_relations.append(rel)
 
             if rel.referencedLayerId() in dict_domains and dict_domains[rel.referencedLayerId()]:
-                editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
-                        'Relation': rel.id(),
-                        'ShowForm': False,
-                        'OrderByValue': True,
-                        'ShowOpenFormButton': False
+                referenced_layer = rel.referencedLayer()
+                editor_widget_setup = QgsEditorWidgetSetup('ValueRelation', {
+                        'Value': 'dispname',
+                        'Key': referenced_layer.fields().field(rel.referencedFields()[0]).name(),
+                        'AllowMulti': False,
+                        'Layer': rel.referencedLayerId(),
+                        'FilterExpression': '',
+                        'AllowNull': False,
+                        'OrderByValue': True
                     }
                 )
+                #editor_widget_setup = QgsEditorWidgetSetup('RelationReference', {
+                #        'Relation': rel.id(),
+                #        'ShowForm': False,
+                #        'OrderByValue': True,
+                #        'ShowOpenFormButton': False
+                #    }
+                #)
                 referencing_layer = rel.referencingLayer()
                 referencing_layer.setEditorWidgetSetup(rel.referencingFields()[0], editor_widget_setup)
 
