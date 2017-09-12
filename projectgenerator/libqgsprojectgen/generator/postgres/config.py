@@ -14,7 +14,15 @@ IGNORED_TABLES = [
     't_ili2db_inheritance',
     't_ili2db_model',
     't_ili2db_classname',
-    't_ili2db_import_basket'
+    't_ili2db_import_basket',
+    'oid',
+    'fraction',
+    'dq_element',
+    'ci_contact',
+    'ci_responsibleparty',
+    'la_partyroletype',
+    'ci_contacto',
+    'ci_parteresponsable',
 ]
 
 IGNORED_FIELDNAMES = [
