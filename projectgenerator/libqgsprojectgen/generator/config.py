@@ -33,7 +33,14 @@ IGNORED_TABLES = [
     'T_ILI2DB_CLASSNAME',
     'T_ILI2DB_BASKET',
     'T_ILI2DB_IMPORT_OBJECT',
-    'T_ILI2DB_IMPORT_BASKET'
+    'T_ILI2DB_IMPORT_BASKET',
+    'oid',
+    'fraccion',
+    'dq_element',
+    'ci_contacto',
+    'ci_parteresponsable',
+    'la_tareainteresadotipo',
+    'la_baunit'
 ]
 
 IGNORED_FIELDNAMES = [
@@ -42,7 +49,8 @@ IGNORED_FIELDNAMES = [
     't_basket',
     'T_Id',
     'T_basket',
-    'T_Seq'
+    'T_Seq',
+    'unidad_la_baunit'
 ]
 
 READONLY_FIELDNAMES = [

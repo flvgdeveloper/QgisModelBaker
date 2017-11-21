@@ -74,6 +74,8 @@ class Importer(QObject):
             args += ["--setupPgExt"]
         elif self.tool_name == 'ili2gpkg':
             args += ["--dbfile", self.configuration.dbfile]
+            basepath = os.path.dirname(os.path.abspath(__file__))
+            args += ["--preScript",  os.path.join(basepath, "prescript.sql")]
 
         args += ["--coalesceCatalogueRef"]
         args += ["--createEnumTabs"]

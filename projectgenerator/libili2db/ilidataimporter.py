@@ -76,6 +76,8 @@ class DataImporter(QObject):
             args += ["--dbschema", self.configuration.schema or self.configuration.database]
         elif self.tool_name == 'ili2gpkg':
             args += ["--dbfile", self.configuration.dbfile]
+            #basepath = os.path.dirname(os.path.abspath(__file__))
+            #args += ["--preScript",  os.path.join(basepath, "prescript.sql")]
 
         args += self.configuration.base_configuration.to_ili2db_args()
 
