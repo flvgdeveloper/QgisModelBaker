@@ -48,7 +48,7 @@ from PyQt5.QtWidgets import (
     QGridLayout
 )
 from qgis.core import QgsMessageLog, Qgis
-
+from functools import partial
 
 class IliCache(QObject):
     ns = {
@@ -107,15 +107,14 @@ class IliCache(QObject):
 
         # download ilimodels.xml
         download_file(ilimodels_url, ilimodels_path,
-                      on_success=lambda: self._process_ilimodels(
-                          ilimodels_path, netloc),
+                      on_success=partial(self._process_ilimodels, file=ilimodels_path, netloc=netloc),
                       on_error=lambda error, error_string: logger.warning(self.tr(
                           'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
                       )
 
         # download ilisite.xml
         download_file(ilisite_url, ilisite_path,
-                      on_success=lambda: self._process_ilisite(ilisite_path),
+                      on_success=partial(self._process_ilisite, file=ilisite_path),
                       on_error=lambda error, error_string: logger.warning(self.tr(
                           'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
                       )
@@ -165,6 +164,7 @@ class IliCache(QObject):
             repo_models, key=lambda m: m['version'], reverse=True)
 
         self.model.set_repositories(self.repositories)
+        return True
 
     def process_local_ili_folder(self, path):
         """

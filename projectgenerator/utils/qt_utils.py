@@ -110,9 +110,10 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     def on_download_progress(bytes_received, bytes_total):
         on_progress(bytes_received, bytes_total)
 
-    def finished():
+    def finished(filename, reply):
         file = QFile(filename)
         file.open(QIODevice.WriteOnly)
+        print(reply.readAll())
         file.write(reply.readAll())
         file.close()
         if reply.error() and on_error:
@@ -127,7 +128,7 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     if on_progress:
         reply.downloadProgress.connect(on_download_progress)
 
-    reply.finished.connect(finished)
+    reply.finished.connect(partial(finished, filename=filename, reply=reply))
 
     if not on_finished and not on_success:
         loop = QEventLoop()
