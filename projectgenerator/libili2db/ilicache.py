@@ -118,14 +118,23 @@ class IliCache(QObject):
         #               on_error=lambda error, error_string: logger.warning(self.tr(
         #                   'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
         #               )
-        print(ilimodels_url, ilimodels_path, ilisite_url, ilisite_path)
-        # download ilimodels.xml
-        download_file_27(ilimodels_url, ilimodels_path)
 
         # download ilisite.xml
-        download_file_27(ilisite_url, ilisite_path)
+        download_file_27(ilisite_url, ilisite_path,
+                         on_success=lambda: self._process_ilisite(file=ilisite_path),
+                         on_error=lambda error, error_string: logger.warning(self.tr(
+                               'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
+                         )
 
-    def process_ilisite(self, file):
+        # download ilimodels.xml
+        download_file_27(ilimodels_url, ilimodels_path,
+                         on_success=partial(self._process_ilimodels, file=ilimodels_path, netloc=netloc),
+                         on_error=lambda error, error_string: logger.warning(self.tr(
+                              'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
+                         )
+
+
+    def _process_ilisite(self, file):
         """
         Parses the ilisite.xml provided in ``file`` and recursively downloads any subidiary sites.
         """
@@ -143,7 +152,7 @@ class IliCache(QObject):
                     self.download_repository(
                         location.find('ili23:value', self.ns).text)
 
-    def process_ilimodels(self, file, netloc):
+    def _process_ilimodels(self, file, netloc):
         """
         Parses ilimodels.xml provided in ``file`` and updates the local repositories cache.
         """

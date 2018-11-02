@@ -36,6 +36,7 @@ from qgis.PyQt.QtCore import (
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtNetwork import QNetworkRequest
 from qgis.core import QgsNetworkAccessManager, QgsNetworkContentFetcherTask, QgsApplication, Qgis
+from urllib.parse import urlparse
 from functools import partial
 import fnmatch
 import logging
@@ -88,38 +89,36 @@ class NetworkError(RuntimeError):
         self.msg = msg
         self.error_code = error_code
 
-def save_file(self, fetcher_task, filename):
+
+def save_file(fetcher_task, filename):
     if fetcher_task.reply() is not None:
         out_file = QFile(filename)
         out_file.open(QIODevice.WriteOnly)
         out_file.write(fetcher_task.reply().readAll())
         out_file.close()
 
-def is_connected(hostname):
+
+def is_connected(hostname, port=80):
     try:
-        host = socket.gethostbyname(hostname)
-        print("$$$$$$$$$$$$$$$", host)
-        s = socket.connect(hostname)
-        s = socket.create_connection((host, 80), 2)
+        host = socket.gethostbyname(urlparse(hostname).netloc)
+        socket.create_connection((host, port), 2)
         return True
     except:
         pass
     return False
 
-def download_file_27(url, filename):
+
+def download_file_27(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
     logger = logging.getLogger(__name__)
     if is_connected(url):
-        #self.btn_download_help.setEnabled(False)
-        #url = '/'.join([HELP_DOWNLOAD, PLUGIN_VERSION, 'asistente_ladm_col_docs_{lang}.zip'.format(lang=QGIS_LANG)])
         fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-        logger.warning('Could not download {url} ({message})'.format(url=url,
-            message=QCoreApplication.translate("GenerateProjectDialog", "There was a problem connecting to Internet.")))
-        fetcher_task.taskCompleted.connect()
+        fetcher_task.taskCompleted.connect(on_success)
         fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
         QgsApplication.taskManager().addTask(fetcher_task)
     else:
         logger.warning('Could not download {url} ({message})'.format(url=url,
             message=QCoreApplication.translate("GenerateProjectDialog", "There was a problem connecting to Internet.")))
+
 
 def download_file(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
     """
