@@ -118,21 +118,18 @@ class IliCache(QObject):
         #               on_error=lambda error, error_string: logger.warning(self.tr(
         #                   'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
         #               )
-
-        # download ilisite.xml
-        download_file_27(ilisite_url, ilisite_path,
-                         on_success=lambda: self._process_ilisite(file=ilisite_path),
-                         on_error=lambda error, error_string: logger.warning(self.tr(
-                               'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
-                         )
-
         # download ilimodels.xml
         download_file_27(ilimodels_url, ilimodels_path,
                          on_success=partial(self._process_ilimodels, file=ilimodels_path, netloc=netloc),
                          on_error=lambda error, error_string: logger.warning(self.tr(
-                              'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
+                             'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
                          )
-
+        # download ilisite.xml
+        download_file_27(ilisite_url, ilisite_path,
+                         on_success=partial(self._process_ilisite, file=ilisite_path),
+                         on_error=lambda error, error_string: logger.warning(self.tr(
+                               'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
+                         )
 
     def _process_ilisite(self, file):
         """
@@ -142,6 +139,10 @@ class IliCache(QObject):
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
             QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(
+                file=file, exception=str(e))), self.tr('Projectgenerator'))
+            return
+        except FileNotFoundError as e:
+            QgsMessageLog.logMessage(self.tr('Could not found file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
 
@@ -161,6 +162,10 @@ class IliCache(QObject):
             root = ET.parse(file).getroot()
         except ET.ParseError as e:
             QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(
+                file=file, exception=str(e))), self.tr('Projectgenerator'))
+            return
+        except FileNotFoundError as e:
+            QgsMessageLog.logMessage(self.tr('Could not found file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
 

@@ -96,6 +96,8 @@ def save_file(fetcher_task, filename):
         out_file.open(QIODevice.WriteOnly)
         out_file.write(fetcher_task.reply().readAll())
         out_file.close()
+    else:
+        print("Error in Download File !!!!!!")
 
 
 def is_connected(hostname, port=80):
@@ -108,13 +110,20 @@ def is_connected(hostname, port=80):
     return False
 
 
-def download_file_27(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
+def download_file_27(url, filename, on_finished=None, on_error=None, on_success=None):
     logger = logging.getLogger(__name__)
     if is_connected(url):
         fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-        fetcher_task.taskCompleted.connect(on_success)
-        fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
+        fetcher_task.run()
+        fetcher_task.fetched.connect(on_success)
+        QgsApplication.taskManager().finalTaskProgressChanged.connect(partial(save_file, fetcher_task, filename))
         QgsApplication.taskManager().addTask(fetcher_task)
+
+        if fetcher_task.reply() is None:
+            fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
+            fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
+            QgsApplication.taskManager().cancelAll()
+            #QgsApplication.taskManager().addTask(fetcher_task)
     else:
         logger.warning('Could not download {url} ({message})'.format(url=url,
             message=QCoreApplication.translate("GenerateProjectDialog", "There was a problem connecting to Internet.")))
@@ -159,7 +168,9 @@ def download_file(url, filename, on_progress=None, on_finished=None, on_error=No
     if on_progress:
         reply.downloadProgress.connect(on_download_progress)
 
-    reply.finished.connect(partial(finished, filename=filename, reply=reply))
+    on_reply_finished = partial(finished, filename, reply, on_error, on_success, on_finished)
+
+    reply.finished.connect(on_reply_finished)
 
     if not on_finished and not on_success:
         loop = QEventLoop()
