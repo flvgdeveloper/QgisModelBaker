@@ -119,17 +119,11 @@ class IliCache(QObject):
         #                   'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
         #               )
         # download ilimodels.xml
-        download_file_27(ilimodels_url, ilimodels_path,
-                         on_success=partial(self._process_ilimodels, file=ilimodels_path, netloc=netloc),
-                         on_error=lambda error, error_string: logger.warning(self.tr(
-                             'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
-                         )
+        download_file_27(ilimodels_url, ilimodels_path)
         # download ilisite.xml
-        download_file_27(ilisite_url, ilisite_path,
-                         on_success=partial(self._process_ilisite, file=ilisite_path),
-                         on_error=lambda error, error_string: logger.warning(self.tr(
-                               'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
-                         )
+        download_file_27(ilisite_url, ilisite_path)
+        self._process_ilisite(ilisite_path)
+        self._process_ilimodels(ilimodels_path, netloc)
 
     def _process_ilisite(self, file):
         """
@@ -141,8 +135,8 @@ class IliCache(QObject):
             QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
-        except FileNotFoundError as e:
-            QgsMessageLog.logMessage(self.tr('Could not found file `{file}` ({exception})'.format(
+        except OSError as e:
+            QgsMessageLog.logMessage(self.tr('Could not found ilisite file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
 
@@ -164,8 +158,8 @@ class IliCache(QObject):
             QgsMessageLog.logMessage(self.tr('Could not parse ilimodels file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
-        except FileNotFoundError as e:
-            QgsMessageLog.logMessage(self.tr('Could not found file `{file}` ({exception})'.format(
+        except OSError as e:
+            QgsMessageLog.logMessage(self.tr('Could not found ilisite file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
 

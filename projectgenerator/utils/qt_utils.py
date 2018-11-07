@@ -104,6 +104,7 @@ def is_connected(hostname, port=80):
     try:
         host = socket.gethostbyname(urlparse(hostname).netloc)
         socket.create_connection((host, port), 2)
+        #socket.socket.shutdown(socket.SHUT_WR)
         return True
     except:
         pass
@@ -114,16 +115,9 @@ def download_file_27(url, filename, on_finished=None, on_error=None, on_success=
     logger = logging.getLogger(__name__)
     if is_connected(url):
         fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-        fetcher_task.run()
-        fetcher_task.fetched.connect(on_success)
-        QgsApplication.taskManager().finalTaskProgressChanged.connect(partial(save_file, fetcher_task, filename))
+        print(url, dir(fetcher_task))
+        fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
         QgsApplication.taskManager().addTask(fetcher_task)
-
-        if fetcher_task.reply() is None:
-            fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-            fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
-            QgsApplication.taskManager().cancelAll()
-            #QgsApplication.taskManager().addTask(fetcher_task)
     else:
         logger.warning('Could not download {url} ({message})'.format(url=url,
             message=QCoreApplication.translate("GenerateProjectDialog", "There was a problem connecting to Internet.")))
