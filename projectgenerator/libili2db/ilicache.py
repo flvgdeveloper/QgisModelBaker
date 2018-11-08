@@ -137,8 +137,8 @@ class IliCache(QObject):
             return
         except OSError as e:
             QgsMessageLog.logMessage(self.tr('Could not found ilisite file `{file}` ({exception})'.format(
-                file=file, exception=str(e))), self.tr('Projectgenerator'))
-            return
+                    file=file, exception=str(e))), self.tr('Projectgenerator'))
+            raise
 
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
             subsite = site.find('ili23:subsidiarySite', self.ns)
@@ -161,7 +161,7 @@ class IliCache(QObject):
         except OSError as e:
             QgsMessageLog.logMessage(self.tr('Could not found ilisite file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
-            return
+            raise
 
         self.repositories[netloc] = list()
         repo_models = list()

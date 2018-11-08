@@ -112,15 +112,10 @@ def is_connected(hostname, port=80):
 
 
 def download_file_27(url, filename, on_finished=None, on_error=None, on_success=None):
-    logger = logging.getLogger(__name__)
-    if is_connected(url):
-        fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-        print(url, dir(fetcher_task))
-        fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
-        QgsApplication.taskManager().addTask(fetcher_task)
-    else:
-        logger.warning('Could not download {url} ({message})'.format(url=url,
-            message=QCoreApplication.translate("GenerateProjectDialog", "There was a problem connecting to Internet.")))
+    fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
+    #print(url, dir(fetcher_task))
+    fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
+    QgsApplication.taskManager().addTask(fetcher_task)
 
 
 def download_file(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
