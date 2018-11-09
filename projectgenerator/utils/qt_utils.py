@@ -35,8 +35,9 @@ from qgis.PyQt.QtCore import (
 )
 from qgis.PyQt.QtGui import QValidator
 from qgis.PyQt.QtNetwork import QNetworkRequest
-from qgis.core import QgsNetworkAccessManager, QgsNetworkContentFetcherTask, QgsApplication, Qgis
+from qgis.core import QgsTask, QgsNetworkContentFetcherTask, QgsApplication, Qgis
 from urllib.parse import urlparse
+from urllib.request import urlopen
 from functools import partial
 import fnmatch
 import logging
@@ -100,76 +101,32 @@ def save_file(fetcher_task, filename):
         print("Error in Download File !!!!!!")
 
 
-def is_connected(hostname, port=80):
-    try:
-        host = socket.gethostbyname(urlparse(hostname).netloc)
-        socket.create_connection((host, port), 2)
-        #socket.socket.shutdown(socket.SHUT_WR)
-        return True
-    except:
-        pass
-    return False
-
-
-def download_file_27(url, filename, on_finished=None, on_error=None, on_success=None):
-    fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-    #print(url, dir(fetcher_task))
-    fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
-    QgsApplication.taskManager().addTask(fetcher_task)
-
-
-def download_file(url, filename, on_progress=None, on_finished=None, on_error=None, on_success=None):
+def download_file(url, filename):
     """
     Will download the file from url to a local filename.
     The method will only return once it's finished.
-
-    While downloading it will repeatedly report progress by calling on_progress
-    with two parameters bytes_received and bytes_total.
 
     If an error occurs, it raises a NetworkError exception.
 
     It will return the filename if everything was ok.
     """
-    network_access_manager = QgsNetworkAccessManager.instance()
+    fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
+    fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
+    QgsApplication.taskManager().addTask(fetcher_task)
 
-    req = QNetworkRequest(QUrl(url))
-    req.setAttribute(QNetworkRequest.CacheSaveControlAttribute, False)
-    req.setAttribute(QNetworkRequest.CacheLoadControlAttribute, QNetworkRequest.AlwaysNetwork)
-    reply = network_access_manager.get(req)
+    if os.path.exists(filename) or fetcher_task.reply() is not None:
+        pass
+    else:
+        try:
+            QgsTask.setProgress(fetcher_task, 0)
+            with urlopen(url) as response, open(filename, 'wb') as out_file:
+                data = response.read()
+                out_file.write(data)
+            QgsTask.setProgress(fetcher_task, 100)
+        except:
+            pass
 
-    def on_download_progress(bytes_received, bytes_total):
-        on_progress(bytes_received, bytes_total)
-
-    def finished(filename, reply):
-        file = QFile(filename)
-        file.open(QIODevice.WriteOnly)
-        file.write(reply.readAll())
-        file.close()
-        if reply.error() and on_error:
-            on_error(reply.error(), reply.errorString())
-        elif not reply.error() and on_success:
-            on_success()
-
-        if on_finished:
-            on_finished()
-        reply.deleteLater()
-
-    if on_progress:
-        reply.downloadProgress.connect(on_download_progress)
-
-    on_reply_finished = partial(finished, filename, reply, on_error, on_success, on_finished)
-
-    reply.finished.connect(on_reply_finished)
-
-    if not on_finished and not on_success:
-        loop = QEventLoop()
-        reply.finished.connect(loop.quit)
-        loop.exec_()
-
-        if reply.error():
-            raise NetworkError(reply.error(), reply.errorString())
-        else:
-            return filename
+    return filename
 
 
 class Validators(QObject):

@@ -27,7 +27,7 @@ import re
 
 from enum import Enum
 from projectgenerator.libili2db.ili2dbutils import get_all_modeldir_in_path
-from projectgenerator.utils.qt_utils import download_file, download_file_27
+from projectgenerator.utils.qt_utils import download_file
 from PyQt5.QtCore import (
     QObject,
     pyqtSignal,
@@ -105,24 +105,11 @@ class IliCache(QObject):
 
         logger = logging.getLogger(__name__)
 
-        # # download ilimodels.xml
-        # download_file(ilimodels_url, ilimodels_path,
-        #               on_success=partial(self._process_ilimodels, file=ilimodels_path, netloc=netloc),
-        #               on_error=lambda error, error_string: logger.warning(self.tr(
-        #                   'Could not download {url} ({message})').format(url=ilimodels_url, message=error_string))
-        #               )
-        #
-        # # download ilisite.xml
-        # download_file(ilisite_url, ilisite_path,
-        #               on_success=partial(self._process_ilisite, file=ilisite_path),
-        #               on_error=lambda error, error_string: logger.warning(self.tr(
-        #                   'Could not download {url} ({message})').format(url=ilisite_url, message=error_string))
-        #               )
-        # download ilimodels.xml
-        download_file_27(ilimodels_url, ilimodels_path)
+        download_file(ilimodels_url, ilimodels_path)
         # download ilisite.xml
-        download_file_27(ilisite_url, ilisite_path)
+        download_file(ilisite_url, ilisite_path)
         self._process_ilisite(ilisite_path)
+        # reload ilisise.xml and ilimodels.xml and populate combobox
         self._process_ilimodels(ilimodels_path, netloc)
 
     def _process_ilisite(self, file):
@@ -135,10 +122,6 @@ class IliCache(QObject):
             QgsMessageLog.logMessage(self.tr('Could not parse ilisite file `{file}` ({exception})'.format(
                 file=file, exception=str(e))), self.tr('Projectgenerator'))
             return
-        except OSError as e:
-            QgsMessageLog.logMessage(self.tr('Could not found ilisite file `{file}` ({exception})'.format(
-                    file=file, exception=str(e))), self.tr('Projectgenerator'))
-            raise
 
         for site in root.iter('{http://www.interlis.ch/INTERLIS2.3}IliSite09.SiteMetadata.Site'):
             subsite = site.find('ili23:subsidiarySite', self.ns)
