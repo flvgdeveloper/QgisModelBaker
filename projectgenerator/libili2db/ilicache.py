@@ -104,7 +104,7 @@ class IliCache(QObject):
         ilisite_path = os.path.join(self.cache_path, netloc, 'ilisite.xml')
 
         logger = logging.getLogger(__name__)
-
+        # download ilimodels.xml
         download_file(ilimodels_url, ilimodels_path)
         # download ilisite.xml
         download_file(ilisite_url, ilisite_path)

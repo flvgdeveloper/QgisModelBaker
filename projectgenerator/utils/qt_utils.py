@@ -91,16 +91,6 @@ class NetworkError(RuntimeError):
         self.error_code = error_code
 
 
-def save_file(fetcher_task, filename):
-    if fetcher_task.reply() is not None:
-        out_file = QFile(filename)
-        out_file.open(QIODevice.WriteOnly)
-        out_file.write(fetcher_task.reply().readAll())
-        out_file.close()
-    else:
-        print("Error in Download File !!!!!!")
-
-
 def download_file(url, filename):
     """
     Will download the file from url to a local filename.
@@ -110,21 +100,9 @@ def download_file(url, filename):
 
     It will return the filename if everything was ok.
     """
-    fetcher_task = QgsNetworkContentFetcherTask(QUrl(url))
-    fetcher_task.fetched.connect(partial(save_file, fetcher_task, filename))
-    QgsApplication.taskManager().addTask(fetcher_task)
-
-    if os.path.exists(filename) or fetcher_task.reply() is not None:
-        pass
-    else:
-        try:
-            QgsTask.setProgress(fetcher_task, 0)
-            with urlopen(url) as response, open(filename, 'wb') as out_file:
-                data = response.read()
-                out_file.write(data)
-            QgsTask.setProgress(fetcher_task, 100)
-        except:
-            pass
+    with urlopen(url) as response, open(filename, 'wb') as out_file:
+        data = response.read()
+        out_file.write(data)
 
     return filename
 
