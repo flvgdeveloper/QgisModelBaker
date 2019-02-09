@@ -1,7 +1,7 @@
 [general]
 name=QGIS Model Baker
 description=QGIS Model Baker creates QGIS projects from models or dabase schemas
-version=dev
+version=4.1.0.1
 icon=images/QgisModelBaker-icon.svg
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
